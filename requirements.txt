@@ -1,4 +1,8 @@
 pandas
 plotly
-random
 numpy
+
+
+difflib
+geopy.distance
+geopy.geocoders
