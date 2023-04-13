@@ -1,2 +1,1 @@
-geopy.distance
-geopy.geocoders
+geopy==2.2.0
