@@ -40,28 +40,31 @@ for col in cols_to_check:
 
 
 ski = ski.fillna(10)
-fig = px.scatter_mapbox(ski, lat="lat", lon="lon", hover_name="resort_name", hover_data=["state"],
+all_mountains_fig = px.scatter_mapbox(ski, lat="lat", lon="lon", hover_name="resort_name", hover_data=["state"],
                         color="acres", color_continuous_scale=px.colors.sequential.Blugrn,
                         size="runs", size_max=15, zoom=2,)
 
 # Set the mapbox style and title
-fig.update_layout(mapbox_style="open-street-map",
+all_mountains_fig.update_layout(mapbox_style="carto-positron",
     title="Ski Resorts in North America, by number of runs and acres")
-st.plotly_chart(fig,
+st.plotly_chart(all_mountains_fig,
     use_container_width=True)
 
-def compare_random_mountains(num_mountains):
+
+st.header("Comparing Mountains to one another")
+
+def compare_mountains(df):
     # Select a random sample of rows from the ski DataFrame
-    random_rows = ski.sample(num_mountains)
+    mountains = df
     cols_to_compare = ['green_percent', 'black_percent', 'blue_percent']
 
     # Scale the percent columns to 0-100
-    random_rows[cols_to_compare] = random_rows[cols_to_compare] * 100
+    mountains[cols_to_compare] = mountains[cols_to_compare] * 100
 
     # Create the r and theta lists for each mountain
     r_values = []
     theta_values = []
-    for i, row in random_rows.iterrows():
+    for i, row in mountains.iterrows():
         r = []
         theta = []
         for col in cols_to_compare:
@@ -72,12 +75,12 @@ def compare_random_mountains(num_mountains):
 
     # Create the polar line traces using plotly.graph_objs
     traces = []
-    for i in range(num_mountains):
-        trace = go.Scatterpolar(r=r_values[i], theta=theta_values[i], fill='toself', name=random_rows.iloc[i]['resort_name'])
+    for i in range(mountains.shape[0]):
+        trace = go.Scatterpolar(r=r_values[i], theta=theta_values[i], fill='toself', name=mountains.iloc[i]['resort_name'])
         traces.append(trace)
 
     # Create a layout for the chart
-    layout = go.Layout(title=f"Comparison of {num_mountains} random ski mountains",
+    layout = go.Layout(title=f"Comparison of your selected ski mountains by difficulty",
                        polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
                        showlegend=True)
 
@@ -87,11 +90,19 @@ def compare_random_mountains(num_mountains):
 
     return(fig)
 
-st.header("Comparing randomly selected resorts")
-mountains_selected = st.number_input("How many resorts would you like to compare?", value=3, min_value=2, max_value=50)
-st.plotly_chart(compare_random_mountains(mountains_selected), use_container_width=True)
+# Allow users to select mountains to compare
+resort_names = ski["resort_name"].unique().tolist()
 
-st.info("Test section")
+default_resorts = ["Jiminy Peak", "Telluride"]
+selected_resorts = st.multiselect("Select ski resorts", resort_names, default=default_resorts)
+filtered_resorts_df = ski[ski["resort_name"].isin(selected_resorts)]
+st.write(filtered_resorts_df)
+
+st.plotly_chart(compare_mountains(filtered_resorts_df),
+                use_container_width=True)
+
+
+st.info("Add some descriptions here")
 def is_valid_zipcode(zipcode):
     return zipcode.isdigit() or zipcode == ''
 
@@ -219,11 +230,22 @@ def compare_closest_mountains(closest_resorts):
 
     def create_trace(rows, columns):
         r_values, theta_values = [], []
+        # Create a dictionary to map long names to shorter ones
+        name_map = {
+            'green_percent': '% Green',
+            'black_percent': '% Black',
+            'blue_percent': '% Blue',
+            'distance_to_centroid': 'Avg Distance',
+            'lifts': 'Lifts',
+            'runs': 'Runs'}
+    
         for i, row in rows.iterrows():
             r, theta = [], []
             for col in columns:
+                # Replace long names with short names using the name_map dictionary
+                theta_label = name_map.get(col, col.title())
                 r.append(row[col])
-                theta.append(col.title())
+                theta.append(theta_label)
             r_values.append(r)
             theta_values.append(theta)
         return r_values, theta_values
@@ -259,4 +281,40 @@ with comparison_col2:
     st.plotly_chart(other_fig, use_container_width=True)
 st.dataframe(closest_resorts)
 
-st.warning("consider adding a new version of the map with the new centroid info and the riders")
+close_resorts_fig = px.scatter_mapbox(closest_resorts,
+                                      lat="lat", lon="lon",
+                                      hover_name="resort_name",
+                                      hover_data=["state", 'state'],
+                                      color="acres",
+                                      color_continuous_scale=px.colors.sequential.Blugrn,
+                                      size="runs",
+                                      size_max=10,
+                                      zoom=6,)
+
+skiers_trace = go.Scattermapbox(
+    lat=skiers_df["Latitude"].round(4), 
+    lon=skiers_df["Longitude"].round(4), 
+    mode="markers", 
+    marker=dict(size=10, color="blue"),
+    text=skiers_df.index,
+    name='Skiers',
+    showlegend=False)
+
+# Create trace for centroid
+centroid_trace = go.Scattermapbox(
+    lat=[round(centroid_latitude,4)], 
+    lon=[round(centroid_longitude,4)], 
+    mode="markers", 
+    marker=dict(size=20, color="gray", opacity=.8),
+    name="Centroid",
+    showlegend=False)
+
+# Add skiers and centroid traces to the figure
+close_resorts_fig.add_trace(skiers_trace)
+close_resorts_fig.add_trace(centroid_trace)
+
+# Set the mapbox style and title
+close_resorts_fig.update_layout(mapbox_style="carto-positron",
+    title="Your local mountains and your group")
+st.plotly_chart(close_resorts_fig,
+    use_container_width=True)
