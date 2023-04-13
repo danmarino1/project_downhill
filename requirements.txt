@@ -1,12 +1,4 @@
 pandas
-
-plotly.express
-plotly.graph_objs
-plotly.subplots
-
+plotly
 random
 numpy
-
-difflib
-geopy.distance
-geopy.geocoders
