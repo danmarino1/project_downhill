@@ -1,8 +1,2 @@
-pandas
-plotly
-numpy
-
-
-difflib
 geopy.distance
 geopy.geocoders
