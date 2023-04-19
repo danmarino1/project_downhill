@@ -27,7 +27,16 @@ ski['state_code'] = split_resort[1]
 st.write("Sample of 5 mountains")
 st.write(ski.sample(5))
 
-st.info("write some background info here")
+st.info("""One thing to know about me is that I'm a huge fan of enjoying the outdoors,
+    and one of my favorite ways to do that is being on a mountain. Whether I'm skiing or
+    snowboarding, I've always had a great day on the mountain.
+    
+    When I plan on going with my friends, there's always one question that makes planning
+    an uphill battle: Where should we go? I have friends of all different ability levels
+    across the East Coast, and pinpointing which mountain to land on becomes a multi-faceted
+    question. I know I'm not alone here, so I built this web app using Streamlit to help others
+    make these decisions much more quickly. Whether you're a seasoned rider or a regular on
+    the bunny hill, I hope this tool can help you make a decision on where to spend your days! ❄️""")
 
 # Cleaning up the data
 # Drop rows where acres is zero
@@ -102,7 +111,13 @@ st.plotly_chart(compare_mountains(filtered_resorts_df),
                 use_container_width=True)
 
 
-st.info("Add some descriptions here")
+st.info("""If you're planning a trip with multiple people,
+        or you're just looking for a spot close to you,
+        feel free to take a peek at what mountains are near
+        you and your group! This tool takes in a zipcode and
+        finds its coordinates to help you find the nearest
+        mountains!""")
+
 def is_valid_zipcode(zipcode):
     return zipcode.isdigit() or zipcode == ''
 
@@ -200,7 +215,9 @@ skiers_dict = {f'Skier {i+1}': [latitude_list[i], longitude_list[i]] for i in ra
 skiers_df = pd.DataFrame(skiers_dict).transpose()
 skiers_df.columns = ['Latitude', 'Longitude']
 
-st.info("add background information")
+st.info("""We now have a center of gravity for you and your group
+        that we can use to find the closest mountains to you.
+        Let's use this to narrow down our search!""")
 st.header("How many resorts are you open to considering?")
 
 # Get the centroid of the spots
@@ -272,7 +289,6 @@ def compare_closest_mountains(closest_resorts):
 
     return percent_fig, other_fig
 
-st.warning('We need to change the hover tool and the label names on the radar charts')
 percent_fig, other_fig = compare_closest_mountains(closest_resorts)
 comparison_col1, comparison_col2 = st.columns(2)
 with comparison_col1:
