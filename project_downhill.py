@@ -30,7 +30,6 @@ st.write(ski.sample(5))
 st.info("""One thing to know about me is that I'm a huge fan of enjoying the outdoors,
     and one of my favorite ways to do that is being on a mountain. Whether I'm skiing or
     snowboarding, I've always had a great day on the mountain.
-    
     When I plan on going with my friends, there's always one question that makes planning
     an uphill battle: Where should we go? I have friends of all different ability levels
     across the East Coast, and pinpointing which mountain to land on becomes a multi-faceted
