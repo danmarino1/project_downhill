@@ -98,7 +98,7 @@ def compare_mountains(df):
 # Allow users to select mountains to compare
 resort_names = ski["resort_name"].unique().tolist()
 
-default_resorts = ["Jackson Hole", "Big Sky"]
+default_resorts = resort_names[0:3]
 selected_resorts = st.multiselect("Select ski resorts", resort_names, default=default_resorts)
 filtered_resorts_df = ski[ski["resort_name"].isin(selected_resorts)]
 st.write(filtered_resorts_df)
