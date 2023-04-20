@@ -15,6 +15,15 @@ from geopy.geocoders import Nominatim
 # Set the title and page layout
 st.set_page_config(page_title="Ski Trip Planner", page_icon=":ski:")
 st.title('Find your ride: using geography to plan your next ski trip')
+st.info("""One thing to know about me is that I'm a huge fan of enjoying the outdoors,
+    and one of my favorite ways to do that is being on a mountain. Whether I'm skiing or
+    snowboarding, I've always had a great day on the mountain.
+    When I plan on going with my friends, there's always one question that makes planning
+    an uphill battle: Where should we go? I have friends of all different ability levels
+    across the East Coast, and pinpointing which mountain to land on becomes a multi-faceted
+    question. I know I'm not alone here, so I built this web app using Streamlit to help others
+    make these decisions much more quickly. Whether you're a seasoned rider or a regular on
+    the bunny hill, I hope this tool can help you make a decision on where to spend your days! ❄️""")
 
 # Load in the data
 ski = pd.read_csv('ski_resort_stats_NA.csv')
@@ -27,16 +36,6 @@ ski['state_code'] = split_resort[1]
 # Print sample
 st.write("Sample of 5 mountains")
 st.write(ski.sample(5))
-
-st.info("""One thing to know about me is that I'm a huge fan of enjoying the outdoors,
-    and one of my favorite ways to do that is being on a mountain. Whether I'm skiing or
-    snowboarding, I've always had a great day on the mountain.
-    When I plan on going with my friends, there's always one question that makes planning
-    an uphill battle: Where should we go? I have friends of all different ability levels
-    across the East Coast, and pinpointing which mountain to land on becomes a multi-faceted
-    question. I know I'm not alone here, so I built this web app using Streamlit to help others
-    make these decisions much more quickly. Whether you're a seasoned rider or a regular on
-    the bunny hill, I hope this tool can help you make a decision on where to spend your days! ❄️""")
 
 # Cleaning up the data
 # Drop rows where acres is zero
