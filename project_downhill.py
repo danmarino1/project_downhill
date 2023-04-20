@@ -18,6 +18,7 @@ st.title('Find your ride: using geography to plan your next ski trip')
 # Load in the data
 ski = pd.read_parquet('ski_resorts.parquet').drop(columns=['api_location', 'trailmap_link', 'vertical'])
 st.write(ski.resort_name)
+st.write(ski.dtypes)
 
 # Print sample
 st.write("Sample of 5 mountains")
@@ -97,7 +98,7 @@ def compare_mountains(df):
 # Allow users to select mountains to compare
 resort_names = ski["resort_name"].unique().tolist()
 
-default_resorts = ["Jiminy Peak", "Telluride"]
+default_resorts = ["Jackson Hole", "Big Sky"]
 selected_resorts = st.multiselect("Select ski resorts", resort_names, default=default_resorts)
 filtered_resorts_df = ski[ski["resort_name"].isin(selected_resorts)]
 st.write(filtered_resorts_df)
