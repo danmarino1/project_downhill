@@ -11,14 +11,19 @@ import numpy as np
 import difflib
 from geopy.distance import distance
 from geopy.geocoders import Nominatim
+
 # Set the title and page layout
 st.set_page_config(page_title="Ski Trip Planner", page_icon=":ski:")
 st.title('Find your ride: using geography to plan your next ski trip')
 
 # Load in the data
-ski = pd.read_parquet('ski_resorts.parquet').drop(columns=['api_location', 'trailmap_link', 'vertical'])
-st.write(ski.resort_name)
-st.write(ski.dtypes)
+ski = pd.read_csv('ski_resorts_stats_NA.csv')
+st.write(ski.info())
+
+# Split the 'resort_name' column into two columns
+split_resort = ski['resort_name'].str.split(', ', n=1, expand=True)
+ski['resort_name'] = split_resort[0]
+ski['state_code'] = split_resort[1]
 
 # Print sample
 st.write("Sample of 5 mountains")
@@ -98,7 +103,7 @@ def compare_mountains(df):
 # Allow users to select mountains to compare
 resort_names = ski["resort_name"].unique().tolist()
 
-default_resorts = resort_names[0:3]
+default_resorts = ["Jiminy Peak", "Telluride"]
 selected_resorts = st.multiselect("Select ski resorts", resort_names, default=default_resorts)
 filtered_resorts_df = ski[ski["resort_name"].isin(selected_resorts)]
 st.write(filtered_resorts_df)
