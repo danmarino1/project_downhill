@@ -17,8 +17,7 @@ st.set_page_config(page_title="Ski Trip Planner", page_icon=":ski:")
 st.title('Find your ride: using geography to plan your next ski trip')
 
 # Load in the data
-ski = pd.read_csv('ski_resorts_stats_NA.csv')
-st.write(ski.info())
+ski = pd.read_csv('ski_resort_stats_NA.csv')
 
 # Split the 'resort_name' column into two columns
 split_resort = ski['resort_name'].str.split(', ', n=1, expand=True)
