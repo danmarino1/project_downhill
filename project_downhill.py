@@ -16,13 +16,8 @@ st.set_page_config(page_title="Ski Trip Planner", page_icon=":ski:")
 st.title('Find your ride: using geography to plan your next ski trip')
 
 # Load in the data
-ski = pd.read_parquet('ski_resorts.parquet')
+ski = pd.read_parquet('ski_resorts.parquet').drop(columns=['api_location', 'trailmap_link'])
 st.write(ski.info())
-
-# Split the 'resort_name' column into two columns
-split_resort = ski['resort_name'].str.split(', ', n=1, expand=True)
-ski['resort_name'] = split_resort[0]
-ski['state_code'] = split_resort[1]
 
 # Print sample
 st.write("Sample of 5 mountains")
