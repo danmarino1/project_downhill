@@ -199,10 +199,12 @@ for location in locations:
         longitude_list.append(coordinates[1])
         st.write(f"{location} done!")
         st.write(location_data)
-
-        # Append the new coordinates to the DataFrame and save it to the file
-        geocoded_zipcodes = geocoded_zipcodes.append({"zip_code": location, "coordinates": coordinates}, ignore_index=True)
-        geocoded_zipcodes.to_parquet("geocoded_zipcodes.parquet", index=False)
+        
+    
+        # The below code is not compatible with the Streamlit web app since it cannot alter the repo. Solution to come.
+        # # Append the new coordinates to the DataFrame and save it to the file
+        # geocoded_zipcodes = geocoded_zipcodes.append({"zip_code": location, "coordinates": coordinates}, ignore_index=True)
+        # geocoded_zipcodes.to_parquet("geocoded_zipcodes.parquet", index=False)
 
     else:
         coordinates = geocoded_zipcodes.loc[geocoded_zipcodes['zip_code'] == location, 'coordinates'].iloc[0]
