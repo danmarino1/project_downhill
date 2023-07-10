@@ -1,5 +1,7 @@
 import pandas as pd
 import streamlit as st
+import pandas as pd
+import streamlit as st
 
 import plotly.express as px
 import plotly.graph_objs as go
@@ -13,7 +15,7 @@ from geopy.distance import distance
 from geopy.geocoders import Nominatim
 
 # Set the title and page layout
-st.set_page_config(page_title="Ski Trip Planner", page_icon=":ski:")
+st.set_page_config(page_title="Find Your Ride", page_icon=":ski:")
 st.title('Find your ride: using geography to plan your next ski trip')
 st.info("""One thing to know about me is that I'm a huge fan of enjoying the outdoors,
     and one of my favorite ways to do that is being on a mountain. Whether I'm skiing or
@@ -26,31 +28,35 @@ st.info("""One thing to know about me is that I'm a huge fan of enjoying the out
     the bunny hill, I hope this tool can help you make a decision on where to spend your days! ❄️""")
 
 # Load in the data
-ski = pd.read_csv('ski_resort_stats_NA.csv')
+ski = pd.read_parquet('ski_resorts.parquet')
+ski.drop(columns=['api_location'], inplace=True)
 
+ski['vertical'] = ski['summit'] - ski['base']
 # Split the 'resort_name' column into two columns
 split_resort = ski['resort_name'].str.split(', ', n=1, expand=True)
 ski['resort_name'] = split_resort[0]
-ski['state_code'] = split_resort[1]
 
-# Print sample
-st.write("Sample of 5 mountains")
-st.write(ski.sample(5))
-
-# Cleaning up the data
-# Drop rows where acres is zero
-ski = ski[ski['acres'] != 0]
 
 # Drop rows where percents are greater than 1.0
 cols_to_check = ['green_percent', 'blue_percent', 'black_percent']
 for col in cols_to_check:
+    ski[col] = ski[col] / 100
     ski = ski[ski[col] <= 1.0]
 
+# Eliminate non-ski resorts: no green, no blue, no black.
+ski = ski[(ski['green_percent'] != 0) | (ski['blue_percent'] != 0) | (ski['black_percent'] != 0)]
 
-ski = ski.fillna(10)
+resort_names = ski["resort_name"].unique().tolist()
+
+# Set the center coordinates for North America
+center_latitude = 45.0
+center_longitude = -100.0
+
 all_mountains_fig = px.scatter_mapbox(ski, lat="lat", lon="lon", hover_name="resort_name", hover_data=["state"],
                         color="acres", color_continuous_scale=px.colors.sequential.Blugrn,
-                        size="runs", size_max=15, zoom=2,)
+                        size="runs", size_max=15, zoom=2,
+                        center=dict(lat=center_latitude, lon=center_longitude))
+
 
 # Set the mapbox style and title
 all_mountains_fig.update_layout(mapbox_style="carto-positron",
@@ -99,8 +105,6 @@ def compare_mountains(df):
     return(fig)
 
 # Allow users to select mountains to compare
-resort_names = ski["resort_name"].unique().tolist()
-
 default_resorts = ["Jiminy Peak", "Telluride"]
 selected_resorts = st.multiselect("Select ski resorts", resort_names, default=default_resorts)
 filtered_resorts_df = ski[ski["resort_name"].isin(selected_resorts)]
@@ -124,7 +128,7 @@ def zipcode_input():
     st.header("Input some zipcodes of who's joining you on the mountain. I'll provide some spots that work best")
 
     # Set the default values for zip codes
-    default_zipcodes = ['06032', '06606', '06824'] + [''] * 9
+    default_zipcodes = ['06032', '06606', '02138'] + [''] * 9
 
     # Use the session state to store the zip codes
     if 'zipcodes' not in st.session_state:
@@ -332,3 +336,17 @@ close_resorts_fig.update_layout(mapbox_style="carto-positron",
     title="Your local mountains and your group")
 st.plotly_chart(close_resorts_fig,
     use_container_width=True)
+
+st.header("""Interested in looking at the trail maps?
+Here are the resorts you're considering and links to trailmaps:""")
+
+for index, row in closest_resorts.iterrows():
+    resort_name = row['resort_name']
+    trailmap_link = row['trailmap_link']
+    st.markdown(f"""<div style="white-space: nowrap;">
+        <a href="{trailmap_link}" style="color: black;">
+        {resort_name + " Trail Map"}</a></div>""", unsafe_allow_html=True)
+    
+st.write('--- \n')
+
+st.info("Don't see a mountain you're expecting to? Any ideas for improvements? Send me an email at dmarino1@me.com.")
