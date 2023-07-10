@@ -122,10 +122,9 @@ def is_valid_zipcode(zipcode):
 
 def zipcode_input():
     st.header("Input some zipcodes of who's joining you on the mountain. I'll provide some spots that work best")
-    st.write("If you're twice as important as your friends, feel free to put your zip code in more than once")
 
     # Set the default values for zip codes
-    default_zipcodes = ['11724', '06606', '06824'] + [''] * 9
+    default_zipcodes = ['06032', '06606', '06824'] + [''] * 9
 
     # Use the session state to store the zip codes
     if 'zipcodes' not in st.session_state:
