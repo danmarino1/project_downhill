@@ -197,8 +197,7 @@ for location in locations:
         coordinates = location_data[1]
         latitude_list.append(coordinates[0])
         longitude_list.append(coordinates[1])
-        st.write(f"{location} done!")
-        st.write(location_data)
+        st.write(f"{location} geocoded!")
         
     
         # The below code is not compatible with the Streamlit web app since it cannot alter the repo. Solution to come.
