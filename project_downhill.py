@@ -48,19 +48,50 @@ ski = ski[(ski['green_percent'] != 0) | (ski['blue_percent'] != 0) | (ski['black
 
 resort_names = ski["resort_name"].unique().tolist()
 
-# Set the center coordinates for North America
-center_latitude = 45.0
-center_longitude = -100.0
+# Set the center coordinates for Continental US
+center_latitude = 39.8283
+center_longitude = -98.5795
 
-all_mountains_fig = px.scatter_mapbox(ski, lat="lat", lon="lon", hover_name="resort_name", hover_data=["state"],
-                        color="acres", color_continuous_scale=px.colors.sequential.Blugrn,
-                        size="runs", size_max=15, zoom=2,
-                        center=dict(lat=center_latitude, lon=center_longitude))
+# Create the figure directly using go.Figure
+all_mountains_fig = go.Figure()
 
+# Add the scatter points
+all_mountains_fig.add_trace(go.Scattergeo(
+    lon=ski['lon'],
+    lat=ski['lat'],
+    text=ski['resort_name'],
+    mode='markers',
+    marker=dict(
+        size=ski['runs']/2,  # Adjust the division factor as needed
+        color=ski['acres'],
+        colorscale='Blugrn',
+        showscale=True,
+        sizemode='area',
+        sizeref=2.*max(ski['runs'])/(15.**2),
+    ),
+    hovertemplate=
+    '<b>%{text}</b><br>' +
+    'State: %{customdata[0]}<br>' +
+    '<extra></extra>',
+    customdata=ski[['state']]
+))
 
-# Set the mapbox style and title
-all_mountains_fig.update_layout(mapbox_style="carto-positron",
-    title="Ski Resorts in North America, by number of runs and acres")
+# Update the layout
+all_mountains_fig.update_layout(
+    title="Ski Resorts in North America, by number of runs and acres",
+    geo=dict(
+        scope='usa',  # Changed from 'north america' to 'usa'
+        showland=True,
+        showcoastlines=True,
+        showlakes=True,
+        showcountries=True,
+        projection_type='albers usa',  # Changed to albers usa projection
+        center=dict(lat=center_latitude, lon=center_longitude),
+    ),
+    width=800,
+    height=600
+)
+
 st.plotly_chart(all_mountains_fig,
     use_container_width=True)
 
@@ -300,19 +331,50 @@ with comparison_col2:
     st.plotly_chart(other_fig, use_container_width=True)
 st.dataframe(closest_resorts)
 
-close_resorts_fig = px.scatter_mapbox(closest_resorts,
-                                      lat="lat", lon="lon",
-                                      hover_name="resort_name",
-                                      hover_data=["state", 'state'],
-                                      color="acres",
-                                      color_continuous_scale=px.colors.sequential.Blugrn,
-                                      size="runs",
-                                      size_max=10,
-                                      zoom=6,)
+# Create the close resorts figure
+close_resorts_fig = go.Figure()
 
-skiers_trace = go.Scattermapbox(
-    lat=skiers_df["Latitude"].round(4), 
+# Add the scatter points for resorts
+close_resorts_fig.add_trace(go.Scattergeo(
+    lon=closest_resorts['lon'],
+    lat=closest_resorts['lat'],
+    text=closest_resorts['resort_name'],
+    mode='markers',
+    marker=dict(
+        size=closest_resorts['runs']/2,
+        color=closest_resorts['acres'],
+        colorscale='Blugrn',
+        showscale=True,
+        sizemode='area',
+        sizeref=2.*max(closest_resorts['runs'])/(10.**2),
+    ),
+    hovertemplate=
+    '<b>%{text}</b><br>' +
+    'State: %{customdata[0]}<br>' +
+    '<extra></extra>',
+    customdata=closest_resorts[['state']]
+))
+
+# Update the layout
+close_resorts_fig.update_layout(
+    title="Closest Ski Resorts to Your Location",
+    geo=dict(
+        scope='usa',
+        showland=True,
+        showcoastlines=True,
+        showlakes=True,
+        showcountries=True,
+        projection_type='equirectangular',
+        center=dict(lat=np.mean(closest_resorts['lat']), lon=np.mean(closest_resorts['lon'])),
+    ),
+    width=800,
+    height=600
+)
+
+# Create trace for skiers
+skiers_trace = go.Scattergeo(
     lon=skiers_df["Longitude"].round(4), 
+    lat=skiers_df["Latitude"].round(4), 
     mode="markers", 
     marker=dict(size=10, color="blue"),
     text=skiers_df.index,
@@ -320,9 +382,9 @@ skiers_trace = go.Scattermapbox(
     showlegend=False)
 
 # Create trace for centroid
-centroid_trace = go.Scattermapbox(
-    lat=[round(centroid_latitude,4)], 
+centroid_trace = go.Scattergeo(
     lon=[round(centroid_longitude,4)], 
+    lat=[round(centroid_latitude,4)], 
     mode="markers", 
     marker=dict(size=20, color="gray", opacity=.8),
     name="Centroid",
@@ -332,9 +394,6 @@ centroid_trace = go.Scattermapbox(
 close_resorts_fig.add_trace(skiers_trace)
 close_resorts_fig.add_trace(centroid_trace)
 
-# Set the mapbox style and title
-close_resorts_fig.update_layout(mapbox_style="carto-positron",
-    title="Your local mountains and your group")
 st.plotly_chart(close_resorts_fig,
     use_container_width=True)
 
