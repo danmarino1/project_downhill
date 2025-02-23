@@ -52,43 +52,35 @@ resort_names = ski["resort_name"].unique().tolist()
 center_latitude = 39.8283
 center_longitude = -98.5795
 
-# Create the figure directly using go.Figure
+# Create base map figure
 all_mountains_fig = go.Figure()
 
-# Add the scatter points
+# Add scatter points
 all_mountains_fig.add_trace(go.Scattergeo(
     lon=ski['lon'],
     lat=ski['lat'],
     text=ski['resort_name'],
     mode='markers',
     marker=dict(
-        size=ski['runs']/2,  # Adjust the division factor as needed
+        size=10,  # Fixed size for simplicity
         color=ski['acres'],
-        colorscale='Blugrn',
+        colorscale='Viridis',
         showscale=True,
-        sizemode='area',
-        sizeref=2.*max(ski['runs'])/(15.**2),
     ),
-    hovertemplate=
-    '<b>%{text}</b><br>' +
-    'State: %{customdata[0]}<br>' +
-    '<extra></extra>',
+    hovertemplate='<b>%{text}</b><br>State: %{customdata[0]}<extra></extra>',
     customdata=ski[['state']]
 ))
 
-# Update the layout
+# Update layout with simpler configuration
 all_mountains_fig.update_layout(
-    title="Ski Resorts in North America, by number of runs and acres",
+    title="Ski Resorts in North America",
     geo=dict(
-        scope='usa',  # Changed from 'north america' to 'usa'
+        scope='usa',
+        projection_type='albers usa',
         showland=True,
-        showcoastlines=True,
-        showlakes=True,
-        showcountries=True,
-        projection_type='albers usa',  # Changed to albers usa projection
-        center=dict(lat=center_latitude, lon=center_longitude),
+        landcolor='rgb(243, 243, 243)',
+        countrycolor='rgb(204, 204, 204)',
     ),
-    width=800,
     height=600
 )
 
